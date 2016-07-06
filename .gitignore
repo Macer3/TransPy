@@ -45,3 +45,42 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Compiled source #
+###################
+*.a
+*.com
+*.class
+*.dll
+*.exe
+*.l[ao]
+*.o
+*.py[ocd]
+*.so
+_configtest.c
+
+
+# Python files #
+################
+# setup.py working directory
+build
+# sphinx build directory
+doc/_build
+# cython files
+cythonize.dat
+# setup.py dist directory
+dist
+# Egg metadata
+*.egg-info
+# tox testing tool
+.tox
+# The shelf plugin uses this dir
+./.shelf
+MANIFEST
+# distutils configuration
+site.cfg
+setup.cfg
+# other temporary files
+.coverage
+.deps
+.libs

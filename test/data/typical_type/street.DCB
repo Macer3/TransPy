@@ -1,0 +1,12 @@
+
+56
+"ID",I,1,4,0,4,0,,,"",,Blank,
+"capacity",I,5,4,0,8,0,,,"",,Blank,
+"AB_flow",I,9,4,0,8,0,,,"",,Blank,
+"BA_flow",I,13,4,0,8,0,,,"",,Blank,
+"AB_speed",I,17,4,0,8,0,,,"",,Blank,
+"BA_speed",I,21,4,0,8,0,,,"",,Blank,
+"AB_time",R,25,8,0,10,2,,,"",,Blank,
+"BA_time",R,33,8,0,10,2,,,"",,Blank,
+"AB_v/c",R,41,8,0,10,2,,,"",,Blank,
+"BA_v/c",R,49,8,0,10,2,,,"",,Blank,

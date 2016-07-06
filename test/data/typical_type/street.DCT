@@ -1,0 +1,14 @@
+
+102
+"ID",I,1,10,0,10,0,,,"",,Blank,
+"Length",F,11,10,0,10,2,,,"",,Blank,
+"Dir",S,21,2,0,2,0,,,"",,Blank,
+"capacity",I,23,8,0,8,0,,,"",,Blank,
+"AB_flow",I,31,8,0,8,0,,,"",,Blank,
+"BA_flow",I,39,8,0,8,0,,,"",,Blank,
+"AB_speed",I,47,8,0,8,0,,,"",,Blank,
+"BA_speed",I,55,8,0,8,0,,,"",,Blank,
+"AB_time",R,63,10,0,10,2,,,"",,Blank,
+"BA_time",R,73,10,0,10,2,,,"",,Blank,
+"AB_v/c",R,83,10,0,10,2,,,"",,Blank,
+"BA_v/c",R,93,10,0,10,2,,,"",,Blank,

@@ -1,0 +1,186 @@
+########
+v_1
+当时的想法是
+class Table()
+    class DTable(Table)
+street table, node table, penalty table 什么的都是DTable
+
+后来发现，以上三种table各有各的不同，不能一概而论
+所以对这个版本进行重构, 新的结构大概是这样的：
+class Table()  # 动态的
+    class StreetTable(Table)
+    class NodeTable(Table)
+    class PenaltyTable(Table)
+########
+import numpy as np
+from heapq import heappop, heappush, heapify
+
+# noinspection PyAttributeOutsideInit
+class Table(object):
+    """Tables ``ds``, cx
+    """
+
+    def __init__(self, data):
+        self.data = data
+
+    def set_fields(self):
+        pass
+
+    def sort_view(self, field, order=1):
+        if order not in [1, -1]:
+            raise ValueError('order should be 1 or -1')
+        idx = np.argsort(self._data, order=field)
+        if order == 1:
+            self._view_line_order = idx
+        else:
+            self._view_line_order = idx[::-1]
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        if isinstance(data, np.ndarray):
+            self._view_line_order = np.arange(data.shape[0])
+            self._view_name_order = list(data.dtype.names)
+            self._data = data
+            self.changed = True
+
+    def __len__(self):
+        return self._data.shape[0]
+
+    @property
+    def names(self):
+        return self.data.dtype.names
+
+    @property
+    def fields(self):
+        return self.data.dtype.fields
+
+    def __getitem__(self, item):
+        return self._data[item]
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
+
+
+class DTable(Table):
+    """Dynamic Table
+    连续增删DTable元素的行数时, 可通过 ``extend`` 方法为表格预留空间, **不会
+    每次都重新分配一个新表**, 故常用来储存常需编辑与修改的点或线的数据. 不修改
+    时通过 ``pack`` 方法除去表格间的空行以节省空间. ``ID`` 按插入、删除后自然
+    累积的顺序排列, 而不像STable是从小到大排列好的.
+
+    Attributes
+    ----------
+    ID_map : dictionary
+        存着每个已用ID在表格中的行号
+    now_max_ID : integer
+        已用的最大ID
+    now_min_ID ：integer
+        已用的最小ID
+    ID_heap : list
+        已用最大ID与最小ID中还没用的ID
+    line_heap : list
+        DTable中还未被使用的ID
+
+    """
+    def __init__(self, data, max_line = 300):
+        Table.__init__(self, data)
+        self.max_line = max_line
+        self.pack()
+        self.now_max_ID = max(self.ID_map)
+        self.now_min_ID = min(self.ID_map)
+        self.ID_heap = self.get_ID_heap()
+        self.line_heap = []
+
+    def update_ID_map(self):
+        for i, line in enumerate(self._data):
+            id = line['ID']
+            if id !=0:
+                self.ID_map[id] = i
+
+    def get_ID_heap(self):
+        id_set = set(range(self.now_min_ID, self.now_max_ID+1))
+        self.ID_heap = heapify(list(id_set - set(self.ID_map)))
+
+
+    def del_ID(self, ID):
+        """
+        该行置为无效(ID=0)，ID对应的行号进入line_heap, ID进入ID_heap.
+        """
+        line = self.ID_map[ID]
+        self.ID_map.__delitem__(ID)
+        heappush(self.ID_heap,ID)
+        heappush(self.line_heap, self.ID_map[ID])
+        self._data[line]['ID'] = 0
+        self.changed = True
+
+    def next_ID(self):
+        """
+        遵循以下原则确定下一个ID号,
+        Returns a (ID,row),
+        ID 和 row 都是可用的数字中最小的，并在该行号的ID域处填上ID
+        """
+        # 寻找下一个的ID
+        if self.ID_heap:
+            next_id = heappop(self.ID_heap)
+        elif self.now_min_ID > 1:
+            next_id = self.now_min_ID - 1
+            self.now_min_ID -= 1
+        elif self.now_max_ID < 65535:
+            next_id = self.now_max_ID + 1
+            self.now_max_ID += 1
+        else:
+            raise OverflowError('The number of ID has reached 65535, '
+                                'can\'t be bigger')
+
+        # 寻找下一个行号
+        if self.line_heap:
+            next_line_num = heappop(self.line_heap)
+        else:
+            next_line_num = len(self.ID_map)
+            if next_line_num >= len(self._data):
+                self.expand()
+
+        self._data[next_line_num]['ID'] = next_id
+        self.ID_map['next_id'] = next_line_num
+        self.changed = True
+
+        return next_id, next_line_num
+
+    def find_effect_line(self, ID_column=self._data['ID']):
+        """返回有效的行的序号"""
+        return np.where((ID_column > 0) & (ID_column <= 65535))
+
+
+    def pack(self):
+        """除掉table中编辑过程中产生的无效的行"""
+        effect_line = find_effect_line(self._data['ID'])
+        if len(effect_line) == len(self.ID_map):
+            return
+        else:
+            self._data = np.array(data[effect_line])
+        self.line_heap = []
+        self.update_ID_map()
+        self.changed = True
+
+    def expand(self, lines=50):
+        now_line = len(self._data)
+
+        if now_line + lines > 65534:
+            lines = 65535 - now_line
+        if lines == 0:
+            raise OverflowError('The number of line has reached 65535, '
+                                'can\'t be bigger')
+            return
+
+        foo = np.zeros((lines,), dtype=self._data.dtype)
+        self._data = np.vstack((self._data, foo))
+        self.changed = True
+
+#todof 还得想想怎么解决现有ID范围超过maxline怎么办，是否有直接取消现有maxline的办法
+#TODO utility里面要有合并两个DTable的函数
+#todo utility里面要有删掉、另存DTable的函数
+#todo utility里还有平移ID的函数？
