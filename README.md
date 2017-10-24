@@ -1,11 +1,12 @@
 # TransPy
-An open source traffic planning software.
+A traffic assignment software written in python.
 
-A software developed in my undergraduate thesis. Although I don't have time and incentive to maintain or further develop it, it can currently be used to carry out some interesting studies, the highlights of the software are:
-- Numpy array and Cython make it fast enough for large-scale  network assignment.
-- Turn delay/prohibitive can be taken into account.
+A software developed in my undergraduate thesis. Although I don't have time and incentive to maintain or further develop it, it can currently be used for some basic problems, main features of the software are:
+- Core algorithm is written by Cython, main network structure is a forward star list combines with trace, a binary heap is used in Dijkstra algorithm. All these features make the software faster enough for common-scale network assignment.
+- A specific table is designed to store turn delay/prohibitive. Turn delay/prohibitive can be taken into account while searching shortest way or doing traffic assignment, 
 - Can be wirelessly connected to other python packages for further analysis.
-- UE and AON are achieved (other methods of assignment need more coding).
+- UE (by FW algorithm) and AON assignments are achieved.
+
 
 ## Example
 ``` Python
