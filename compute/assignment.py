@@ -142,7 +142,7 @@ def all_or_nothing(net, matrix, link_table, cfg):
 
 
 def user_equilibrium(net, matrix, link_table, cfg):
-    """全有全无分配.
+    """用户均衡分配.
 
     Parameters
     ----------
